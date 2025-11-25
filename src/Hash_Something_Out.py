@@ -7,11 +7,11 @@ Created on Nov 13, 2025
 import csv
 import time
 
-# Second attempt at a hash function. Attempting to use the entire string of characters to create a hash in order to sort the
-# values into the hash table. Using a larger hash table as the previous one very clearly showed that it was too small with 
-# how many collisions it had. Wasn't sure how increasing the size might impact the wasted space, but it appears that this
-# size of an increase has not added any wasted space. Still unsure whether this method results in a uniform distribution
-# of values throughout the table or if the table is still just too small to see if it is inconsistent.
+# Improving the structure of my code as well as the hash encoding function. Allocating the encoding code to a separate function to 
+# reduce repetition and improve readability of the code. After a little research into what is important in a good hash encoding function,
+# the new function does not improve upon the previous iteration much as there is similar collisions and wasted space. After decreasing
+# the size of the table by 3000, the collisions increased by around 1000, but the amount of wasted space decreased by about 2000. This 
+# hash table size testing occurred with this current iteration of the encoding function.
 
 class DataItem:
     
@@ -27,18 +27,24 @@ class DataItem:
         self.company = company
         self.quote = quote
 
+def hashFunction(str):
+    
+    h = 0x811c9dc5  # the basis for a 32 bit offset 
+    fnv_prime = 0x01000193  # a 32 bit FNV prime
+
+    for char in str:
+        h ^= ord(char)
+        h = (h * fnv_prime) % (2**32)  # ensures the code stays within a 32 bit area
+        
+    return h
+
 
 def hashTitle(data, array):
     
     collisions = 0
     
-    h = 0;
-    
-    for l in data.title:
-        
-        h += ord(l)
-    
-    indexTitle = h % 10000
+    h = hashFunction(data.title)
+    indexTitle = h % len(array)
     
     if array[indexTitle] != None:
         collisions = 1
@@ -52,13 +58,8 @@ def hashQuote(data, array):
     
     collisions = 0
     
-    h = 0;
-    
-    for l in data.quote:
-        
-        h += ord(l)
-    
-    indexQuote = h % 10000
+    h = hashFunction(data.title)
+    indexQuote = h % len(array)
     
     if array[indexQuote] != None:
         collisions = 1
@@ -71,8 +72,8 @@ def hashQuote(data, array):
 
 def main():
     
-    title = [None] * 10000
-    quote = [None] * 10000
+    title = [None] * 7000
+    quote = [None] * 7000
     
     titleCollisions = 0
     quoteCollisions = 0
@@ -121,7 +122,7 @@ def main():
     print(f"Time: {quoteTime} seconds")
     
     qCountEmpty = 0
-    for i in title:
+    for i in quote:
         if i == None:
             qCountEmpty += 1
             
