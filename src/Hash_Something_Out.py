@@ -7,10 +7,11 @@ Created on Nov 13, 2025
 import csv
 import time
 
-# First attempt at a hash table implementation. This attempt is simple and relies on the first
-# letter of the title or quote to create the key. This iteration is primarily to have a 
-# predictable outcome so that I may ensure that my functions for obtaining statistics about
-# the construction of the hash tables are working properly.
+# Second attempt at a hash function. Attempting to use the entire string of characters to create a hash in order to sort the
+# values into the hash table. Using a larger hash table as the previous one very clearly showed that it was too small with 
+# how many collisions it had. Wasn't sure how increasing the size might impact the wasted space, but it appears that this
+# size of an increase has not added any wasted space. Still unsure whether this method results in a uniform distribution
+# of values throughout the table or if the table is still just too small to see if it is inconsistent.
 
 class DataItem:
     
@@ -27,43 +28,51 @@ class DataItem:
         self.quote = quote
 
 
-def hashTitle(data, title):
+def hashTitle(data, array):
     
     collisions = 0
     
-    alphanumeric = "abcdefghijklmnopqrstuvwxyz0123456789"
+    h = 0;
     
-    indexTitle = alphanumeric.find(data.title[0].lower())
+    for l in data.title:
+        
+        h += ord(l)
     
-    if title[indexTitle] != None:
+    indexTitle = h % 10000
+    
+    if array[indexTitle] != None:
         collisions = 1
     
-    title[indexTitle] = data
+    array[indexTitle] = data
     
-    return title, collisions
+    return array, collisions
 
 
-def hashQuote(data, quote):
+def hashQuote(data, array):
     
     collisions = 0
     
-    alphanumeric = "abcdefghijklmnopqrstuvwxyz0123456789"
+    h = 0;
     
-    indexQuote = alphanumeric.find(data.quote[0].lower())
+    for l in data.quote:
+        
+        h += ord(l)
     
-    if quote[indexQuote] != None:
+    indexQuote = h % 10000
+    
+    if array[indexQuote] != None:
         collisions = 1
     
-    quote[indexQuote] = data
+    array[indexQuote] = data
     
-    return quote, collisions
+    return array, collisions
     
 
 
 def main():
     
-    title = [None] * 36
-    quote = [None] * 36
+    title = [None] * 10000
+    quote = [None] * 10000
     
     titleCollisions = 0
     quoteCollisions = 0
