@@ -7,10 +7,8 @@ Created on Nov 13, 2025
 import csv
 import time
 
-# Decided to focus on what could be causing the massive disparity between the collisions and wasted space between the hash function
-# when called on the title as opposed to the quote. My first thought was that it may have something to do with the length of the strings 
-# being used, since the quotes are consistently longer than the titles. To test this, I am going to turn the string inserted, whether a
-# title or string, into a string of length 50 by having the original string repeat until it reaches that length.
+# After doing more research into possible interpretations of string hash encoding, I have adapted code that uses the alphanumeric
+# interpreting to create the hash code that I used as the basis for my first control attempt. 
 
 class DataItem:
     
@@ -28,20 +26,17 @@ class DataItem:
 
 def hashFunction(str):
     
-    s = ""
+    p = 53
+    m = 20011
+    hash_value = 0
+    p_pow = 1
     
-    for i in range(50):
+    for c in str:
         
-        s += str[i%len(str)]
-    
-    h = 0x811c9dc5  # 32-bit offset basis
-    fnv_prime = 0x01000193  # 32-bit FNV prime
-
-    for char in s:
-        h ^= ord(char)
-        h = (h * fnv_prime) % (2**32)  # stay in 32-bit space
-
-    return h
+        hash_value = (hash_value + (ord(c) + 1) * p_pow) % m
+        p_pow = (p_pow * p) % m
+        
+    return int(hash_value);
 
 def hashTitle(data, array):
     
