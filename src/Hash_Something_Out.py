@@ -7,11 +7,10 @@ Created on Nov 13, 2025
 import csv
 import time
 
-# Improving the structure of my code as well as the hash encoding function. Allocating the encoding code to a separate function to 
-# reduce repetition and improve readability of the code. After a little research into what is important in a good hash encoding function,
-# the new function does not improve upon the previous iteration much as there is similar collisions and wasted space. After decreasing
-# the size of the table by 3000, the collisions increased by around 1000, but the amount of wasted space decreased by about 2000. This 
-# hash table size testing occurred with this current iteration of the encoding function.
+# Decided to focus on what could be causing the massive disparity between the collisions and wasted space between the hash function
+# when called on the title as opposed to the quote. My first thought was that it may have something to do with the length of the strings 
+# being used, since the quotes are consistently longer than the titles. To test this, I am going to turn the string inserted, whether a
+# title or string, into a string of length 50 by having the original string repeat until it reaches that length.
 
 class DataItem:
     
@@ -29,15 +28,20 @@ class DataItem:
 
 def hashFunction(str):
     
-    h = 0x811c9dc5  # the basis for a 32 bit offset 
-    fnv_prime = 0x01000193  # a 32 bit FNV prime
-
-    for char in str:
-        h ^= ord(char)
-        h = (h * fnv_prime) % (2**32)  # ensures the code stays within a 32 bit area
+    s = ""
+    
+    for i in range(50):
         
-    return h
+        s += str[i%len(str)]
+    
+    h = 0x811c9dc5  # 32-bit offset basis
+    fnv_prime = 0x01000193  # 32-bit FNV prime
 
+    for char in s:
+        h ^= ord(char)
+        h = (h * fnv_prime) % (2**32)  # stay in 32-bit space
+
+    return h
 
 def hashTitle(data, array):
     
@@ -58,7 +62,7 @@ def hashQuote(data, array):
     
     collisions = 0
     
-    h = hashFunction(data.title)
+    h = hashFunction(data.quote)
     indexQuote = h % len(array)
     
     if array[indexQuote] != None:
@@ -72,8 +76,8 @@ def hashQuote(data, array):
 
 def main():
     
-    title = [None] * 7000
-    quote = [None] * 7000
+    title = [None] * 20011
+    quote = [None] * 20011
     
     titleCollisions = 0
     quoteCollisions = 0
